@@ -8,6 +8,9 @@ require_once JPATH_COMPONENT . '/assets/stripe-config.php';
 class SwaControllerMemberPayment extends SwaController {
 
     public function submit() {
+        // Check for request forgeries.
+        JSession::checkToken() or jexit( JText::_( 'JINVALID_TOKEN' ) );
+
         // get the POST data
         $token = $this->input->getString('stripeToken');
 
