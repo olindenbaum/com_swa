@@ -16,8 +16,7 @@ class SwaModelQualifications extends SwaModelList {
 		$app = JFactory::getApplication();
 
 		// Load the filter state.
-		$search =
-			$app->getUserStateFromRequest( $this->context . '.filter.search', 'filter_search' );
+		$search = $app->getUserStateFromRequest( $this->context . '.filter.search', 'filter_search' );
 		$this->setState( 'filter.search', $search );
 
 		// Load the parameters.
@@ -25,7 +24,7 @@ class SwaModelQualifications extends SwaModelList {
 		$this->setState( 'params', $params );
 
 		// List state information.
-		parent::populateState( 'a.id', 'asc' );
+		parent::populateState( 'qualification.id', 'asc' );
 	}
 
 	/**
@@ -60,24 +59,27 @@ class SwaModelQualifications extends SwaModelList {
 
 		// Select the required fields from the table.
 		$query->select(
-			array(
-				'a.id as id',
-				'users.name as member',
-				'a.type as type',
-				'a.expiry_date as expiry',
-				'a.approved as approved',
+			$db->quoteName(
+				array(
+					'qualification.id',
+					'user.name',
+					'type.name',
+					'qualification.expiry_date',
+					'qualification.approved_on',
+					'qualification.approved_by'
+				),
+				array('id', 'member', 'type', 'expires', 'approved_on', 'approved_by')
 			)
 		);
-		$query->from( '`#__swa_qualification` AS a' );
-		$query->where( 'a.member_id = ' . $member->id );
 
-		// Join over the user field 'user_id'
-		$query->join( 'LEFT', '#__swa_member AS member ON member.id = a.member_id' );
-		$query->join( 'LEFT', '#__users AS users ON users.id = member.user_id' );
-		$query->join(
-			'LEFT',
-			'#__swa_university AS university ON university.id = member.university_id'
-		);
+		$query->from( $db->qn('#__swa_qualification', 'qualification') );
+
+		$query->leftJoin( $db->qn('#__swa_qualification_type', 'type') . " ON type.id = qualification.type_id" );
+		$query->leftJoin( $db->qn('#__swa_member', 'member') . " ON member.id = qualification.member_id" );
+		$query->leftJoin( $db->qn('#__users', 'user') . " ON user.id = member.user_id" );
+		$query->leftJoin( $db->qn('#__swa_university', 'uni') . " ON uni.id = member.university_id" );
+
+		$query->where( "qualification.member_id = {$member->id}" );
 
 		// Add the list ordering clause.
 		$orderCol = $this->state->get( 'list.ordering' );
@@ -85,6 +87,9 @@ class SwaModelQualifications extends SwaModelList {
 		if ( $orderCol && $orderDirn ) {
 			$query->order( $db->escape( $orderCol . ' ' . $orderDirn ) );
 		}
+
+//		echo $query->dump();
+//		die("model/qualifications");
 
 		return $query;
 	}

@@ -7,19 +7,21 @@ require_once JPATH_COMPONENT . '/controller.php';
 class SwaControllerQualifications extends SwaController {
 
 	public function viewImage() {
-		// Check for request forgeries.
-		//JSession::checkToken() or jexit( JText::_( 'JINVALID_TOKEN' ) );
 
 		$input = JFactory::getApplication()->input;
+		$get = $input->get;
 		$data = $input->getArray();
-		$qualificationId = $data['qualification'];
+		$qualificationId = $get->getInt('qualification', $default=null);
+
+		$model = $this->getModel('qualifications');
+		$member = $model->getMember();
 
 		//TODO get qualification
 		$db = JFactory::getDbo();
 		$query = $db->getQuery( true );
 
-		$query->select( 'a.*' );
-		$query->from( '#__swa_qualification as a' );
+		$query->select( 'qualification.*' );
+		$query->from( $db->qn('#__swa_qualification', 'qualification') );
 		$query->where( 'id=' . $db->quote( $qualificationId ) );
 
 		$db->setQuery( $query );
@@ -28,14 +30,12 @@ class SwaControllerQualifications extends SwaController {
 		}
 		$qualification = $db->loadObject();
 
-		$currentMember = $this->getCurrentMember();
-		if ( !$currentMember->id ) {
-			die( 'Coudnln\'t get member id to view qualification image');
+		if ( !$member->id ) {
+			die( "Couldn't get member id to view qualification image");
 		}
-		if( $qualification->member_id != $currentMember->id ) {
-			die( 'Trying to get qualfiication image for other member..' );
+		if( $qualification->member_id != $member->id ) {
+			die( "Trying to get qualification image for other member.." );
 		}
-
 		//output the file?
 		header("Content-type: " . $qualification->file_type );
 		print( $qualification->file );
@@ -46,49 +46,60 @@ class SwaControllerQualifications extends SwaController {
 		// Check for request forgeries.
 		JSession::checkToken() or jexit( JText::_( 'JINVALID_TOKEN' ) );
 
-		//Get the file uploaded
-		$file = JFactory::getApplication()->input->files->get('jform');
-		$file = $file['file_upload'];
-		if( $file['error'] !== 0 ) {
+		// get the input and the filtered post data
+		$input = JFactory::getApplication()->input;
+		$post = $input->post;
+		$formData = new JInput($post->get('jform', '', 'array'));
+
+		var_dump($post);
+		var_dump($formData->getInt('type'));
+
+		// Get info about the uploaded file;
+		$fileData = new JInput($post->files->get('jform', '', 'array'));
+		$fileData = new JInput($fileData->get('file_upload', '', 'array'));
+		$fileError = $fileData->getInt('error', $default=null);
+
+		// TODO: see why getPath doesn't work as expected
+		$filePath = $fileData->getPath('tmp_name', $default=null);
+
+		$filePath = $fileData->getString('tmp_name', $default=null);
+
+		var_dump($filePath);
+
+		if( $fileError !== 0) {
 			die( 'Got an error while uploading file' );
 		}
-		$filePath = $file['tmp_name'];
 		if( !file_exists( $filePath ) ) {
-			die( 'Couldn\'t find uploaded file!' );
-		}
-		$fileType = $file['type'];
-
-		$props = $this->getProperties();
-		/** @var JInput $input */
-		$input = $props['input'];
-		$data = $input->getArray();
-		$data = $data['jform'];
-
-		$currentMember = $this->getCurrentMember();
-		if ( !$currentMember->id ) {
-			die( 'Coudnln\'t get member id to add qualification');
+			die( "Couldn't find uploaded file!" );
 		}
 
-		$expiryDate = date('Y-m-d', strtotime($data['expiry_date']));
-		if( new DateTime( $expiryDate ) < new DateTime() ) {
-			die( 'Expiry date can not be in the past!' );
+		$qualificationTypeId = $formData->getInt('type', $default=null);
+		var_dump($qualificationTypeId);
+		if ( $qualificationTypeId === null ) {
+			die( "Couldn't find qualification type in POST data." );
 		}
 
-		$db = JFactory::getDbo();
-		$query = $db->getQuery( true );
+		$model = $this->getModel('qualifications');
+		$member = $model->getMember();
 
-		//Load the file to add to the db
+		if ( !$member->id ) {
+			die( "Couldn't get member id to add qualification");
+		}
+
+		// Load the file to add to the db
 		$fp = fopen($filePath, 'r');
 		$file = fread($fp, filesize($filePath));
 		fclose($fp);
 
-		$columns = array( 'member_id', 'type', 'expiry_date', 'file', 'file_type' );
+		$db = JFactory::getDbo();
+		$query = $db->getQuery( true );
+
+		$columns = array( 'member_id', 'type_id', 'file', 'file_type' );
 		$values = array(
-			$db->quote( $currentMember->id ),
-			$db->quote( $data['type'] ),
-			$db->quote( $expiryDate ),
+			$db->quote( $member->id ),
+			$db->quote( $qualificationTypeId ),
 			$db->quote( $file ),
-			$db->quote( $fileType ),
+			$db->quote( $fileData->getString('type') ),
 		);
 
 		$query
@@ -98,37 +109,18 @@ class SwaControllerQualifications extends SwaController {
 
 		$db->setQuery( $query );
 		if ( !$db->execute() ) {
+
 			JLog::add(
-				__CLASS__ . ' failed to add qualification: Member:' . $currentMember->id,
+				__CLASS__ . ' failed to add qualification: Member:' . $member->id,
 				JLog::INFO,
 				'com_swa'
 			);
+
 		} else {
-			$this->logAuditFrontend( 'added qualification: ' . $data['type'] );
+			$this->logAuditFrontend( 'added qualification: ' . $qualificationTypeId );
 		}
-		$this->setRedirect(
-			JRoute::_( 'index.php?option=com_swa&view=qualifications', false )
-		);
-	}
 
-	/**
-	 * @return mixed
-	 */
-	public function getCurrentMember() {
-		// Create a new query object.
-		$db = JFactory::getDbo();
-		$query = $db->getQuery( true );
-		$user = JFactory::getUser();
-
-		// Select the required fields from the table.
-		$query->select( 'a.*' );
-		$query->from( $db->quoteName( '#__swa_member' ) . ' AS a' );
-		$query->where( 'a.user_id = ' . $db->quote( $user->id ) );
-
-		// Load the result
-		$db->setQuery( $query );
-
-		return $db->loadObject();
+		$this->setRedirect( JRoute::_('index.php?option=com_swa&view=qualifications', false) );
 	}
 
 }

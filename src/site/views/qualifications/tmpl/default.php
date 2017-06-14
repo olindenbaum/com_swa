@@ -14,7 +14,7 @@ $doc = JFactory::getDocument();
 $doc->addScript( JUri::base() . '/components/com_swa/assets/js/form.js' );
 ?>
 
-<!--</style>-->
+<!-- TODO: Is this needed? Looks like it doesn't do anything -->
 <script type="text/javascript">
 	getScript( '//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js', function () {
 		jQuery( document ).ready( function () {
@@ -39,7 +39,7 @@ if( empty( $this->items ) ) {
 			<tr>
 				<th>Id</th>
 				<th>Type</th>
-				<th>Expiry</th>
+				<th>Expires</th>
 				<th>Approved</th>
 				<th>File</th>
 			</tr>
@@ -47,36 +47,40 @@ if( empty( $this->items ) ) {
 		<tbody>
 			<?php
 			foreach ( $this->items as $item ) {
-				echo "<tr>\n";
-				echo "<td>" . $item->id . "</td>\n";
-				echo "<td>" . $item->type . "</td>\n";
-				if ( new DateTime( $item->expiry ) < new DateTime() ) {
-					echo "<td bgcolor='#FF6666'>";
-				} else {
-					echo "<td>";
-				}
-				echo date('d-m-Y', strtotime($item->expiry));
-				echo "</td>";
-				if ( !$item->approved ) {
-					echo "<td bgcolor='#FF6666'>";
-				} else {
-					echo "<td>";
-				}
-				echo $item->approved;
-				echo "</td>";
+				$approved = $item->approved_on != null;
+				$expires = $item->expires == null ? "-" : date('d-m-Y', strtotime($item->expires));
 				$imgSrc =
+//					"http://localhost/swa/images/banners/windsurf-mag-subscribe.jpg";
 					JRoute::_(
 						'index.php?option=com_swa&task=qualifications.viewImage&qualification=' .
 						$item->id
 					);
-				echo "<td><a href='$imgSrc'><img src='$imgSrc' height='50' width='50'/></a></td>";
-				echo "</tr>\n";
+
+				print "<tr>";
+				print "<td>{$item->id}</td>";
+				print "<td>{$item->type}</td>";
+				if ( new DateTime( $item->expires ) < new DateTime() ) {
+					echo "<td bgcolor='#FF6666'>";
+				} else {
+					echo "<td>";
+				}
+				echo $expires;
+				echo "</td>";
+				if ( !$approved ) {
+					echo "<td bgcolor='#FF6666'>";
+				} else {
+					echo "<td>";
+				}
+				echo $approved ? "True" : "False";
+				echo "</td>";
+				echo "<td><a href='$imgSrc' target='_blank'><img src='$imgSrc' height='50' width='50'/></a></td>";
+				print "</tr>";
 			}
 			?>
 		</tbody>
 	</table>
 
-	<?php
+<?php
 }
 ?>
 
@@ -94,10 +98,6 @@ if( empty( $this->items ) ) {
 					<td><?php echo $this->form->getInput( 'type' ); ?></td>
 				</tr>
 				<tr>
-					<td><?php echo $this->form->getLabel( 'expiry_date' ); ?></td>
-					<td><?php echo $this->form->getInput( 'expiry_date' ); ?></td>
-				</tr>
-				<tr>
 					<td><?php echo $this->form->getLabel( 'file_upload' ); ?></td>
 					<td><?php echo $this->form->getInput( 'file_upload' ); ?></td>
 				</tr>
@@ -106,15 +106,14 @@ if( empty( $this->items ) ) {
 					<td>
 						<div class="control-group">
 							<div class="controls">
-								<button type="submit"
-										class="validate btn btn-primary"><?php echo JText::_(
-										'JSUBMIT'
-									); ?></button>
-								<a class="btn" href="<?php echo JRoute::_(
-									'index.php?option=com_swa&task=qualifications.cancel'
-								); ?>" title="<?php echo JText::_( 'JCANCEL' ); ?>"><?php echo JText::_(
-										'JCANCEL'
-									); ?></a>
+								<button type="submit" class="validate btn btn-primary">
+									<?php echo JText::_('JSUBMIT'); ?>
+								</button>
+								<a class="btn"
+								   href="<?php echo JRoute::_('index.php?option=com_swa&task=qualifications.cancel'); ?>"
+								   title="<?php echo JText::_( 'JCANCEL' ); ?>">
+									<?php echo JText::_('JCANCEL'); ?>
+								</a>
 							</div>
 						</div>
 					</td>
@@ -126,6 +125,5 @@ if( empty( $this->items ) ) {
 		<input type="hidden" name="option" value="com_swa"/>
 		<input type="hidden" name="task" value="qualifications.add"/>
 		<?php echo JHtml::_( 'form.token' ); ?>
-		<small>Note: If there is no expiry date pick a large date such as 3000-01-01.</small>
 	</form>
 </div>
