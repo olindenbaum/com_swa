@@ -58,15 +58,29 @@ class SwaModelQualification extends JModelAdmin {
 	 */
 	protected function loadFormData() {
 		// Check the session for previously entered form data.
-		$data =
-			JFactory::getApplication()->getUserState( 'com_swa.edit.qualification.data', array() );
+		$data = JFactory::getApplication()->getUserState( 'com_swa.edit.qualification.data', array() );
 
 		if ( empty( $data ) ) {
 			$data = $this->getItem();
-
 		}
 
 		return $data;
+	}
+
+	public function validate($form, $data, $group = null)
+	{
+		// stop joomla setting the sate fields to '0000-00-00'
+		if ($data['expiry_date'] == '' or $data['expiry_date'] == '0000-00-00')
+			$data['expiry_date'] = null;
+
+		if ($data['approved_on'] == '' or $data['approved_on'] == '0000-00-00')
+			$data['approved_on'] = null;
+
+		// stop joomla setting approved_by to ''
+		if ($data['approved_by'] == '')
+			$data['approved_by'] = null;
+
+		return parent::validate($form, $data, $group);
 	}
 
 }

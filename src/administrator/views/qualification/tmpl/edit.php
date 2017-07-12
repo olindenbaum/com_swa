@@ -35,81 +35,59 @@ $document->addStyleSheet( 'components/com_swa/assets/css/swa.css' );
 	}
 </script>
 
-<form action="<?php echo JRoute::_(
-	'index.php?option=com_swa&layout=edit&id=' . (int)$this->item->id
-); ?>" method="post" enctype="multipart/form-data" name="adminForm" id="qualification-form"
-	  class="form-validate">
-
-	<!-- Hidden field hack so that unchecked checkboxes are saved -->
-	<input type="hidden" name="jform[approved]" value="0">
+<form action="<?php echo JRoute::_('index.php?option=com_swa&layout=edit&id=' . (int)$this->item->id); ?>"
+	  method="post" enctype="multipart/form-data" name="adminForm" id="qualification-form" class="form-validate">
 
 	<div class="form-horizontal">
 		<?php echo JHtml::_( 'bootstrap.startTabSet', 'myTab', array( 'active' => 'general' ) ); ?>
 
-		<?php echo JHtml::_(
-			'bootstrap.addTab',
-			'myTab',
-			'general',
-			JText::_( 'Qualification', true )
-		); ?>
+		<?php echo JHtml::_('bootstrap.addTab', 'myTab', 'general', JText::_( 'Qualification', true )); ?>
 		<div class="row-fluid">
 			<div class="span10 form-horizontal">
 				<fieldset class="adminform">
 
 					<div class="control-group">
-						<div class="control-label"><?php echo $this->form->getLabel(
-								'id'
-							); ?></div>
-						<div class="controls"><?php echo $this->form->getInput( 'id' ); ?></div>
+						<div class="control-label"><?php echo $this->form->getLabel('id'); ?></div>
+						<div class="controls"><?php echo $this->form->getInput('id'); ?></div>
 					</div>
 					<div class="control-group">
-						<div class="control-label"><?php echo $this->form->getLabel(
-								'member_id'
-							); ?></div>
-						<div class="controls"><?php echo $this->form->getInput(
-								'member_id'
-							); ?></div>
+						<div class="control-label"><?php echo $this->form->getLabel('member_id'); ?></div>
+						<div class="controls"><?php echo $this->form->getInput('member_id'); ?></div>
 					</div>
 					<div class="control-group">
-						<div class="control-label"><?php echo $this->form->getLabel(
-								'type'
-							); ?></div>
-						<div class="controls"><?php echo $this->form->getInput( 'type' ); ?></div>
+						<div class="control-label"><?php echo $this->form->getLabel('type_id'); ?></div>
+						<div class="controls"><?php echo $this->form->getInput('type_id'); ?></div>
 					</div>
 					<div class="control-group">
-						<div class="control-label"><?php echo $this->form->getLabel(
-								'expiry_date'
-							); ?></div>
-						<div class="controls"><?php echo $this->form->getInput(
-								'expiry_date'
-							); ?></div>
+						<div class="control-label"><?php echo $this->form->getLabel('expiry_date'); ?></div>
+						<div class="controls"><?php echo $this->form->getInput('expiry_date'); ?></div>
 					</div>
-
 					<div class="control-group">
-						<div class="control-label"><?php echo $this->form->getLabel(
-								'approved'
-							); ?></div>
-						<div class="controls"><?php echo $this->form->getInput( 'approved' ); ?></div>
+						<div class="control-label"><?php echo $this->form->getLabel('approved_on'); ?></div>
+						<div class="controls"><?php echo $this->form->getInput('approved_on'); ?></div>
+					</div>
+					<div class="control-group">
+						<div class="control-label"><?php echo $this->form->getLabel('approved_by'); ?></div>
+						<div class="controls"><?php echo $this->form->getInput('approved_by'); ?></div>
 					</div>
 
 					<p>Note: there is currently no way to change an uploaded image file.</p>
-					<p>Note: these is also no way to add a qualification with a file in the backend.</p>
+					<p>Note: there is also no way to add a qualification with a file in the backend.</p>
 
 					<?php
 					$input = JFactory::getApplication()->input;
 					$data = $input->getArray();
 					$qualificationId = $data['id'];
-					$imgSrc = "http://localhost/j/administrator/index.php?option=com_swa&task=qualifications.viewimage&id=" . $qualificationId;
-					echo "<a href='$imgSrc'><img src='$imgSrc' width='500' height='500'/></a>";
+					$imgSrc = JRoute::_("index.php?option=com_swa&task=qualifications.viewimage&id=" . $qualificationId);
 					?>
+					<a href="<?php echo $imgSrc ?>">
+						<img src="<?php echo $imgSrc ?>" width="500" height="500"/>
+					</a>;
 
 				</fieldset>
 			</div>
 		</div>
 		<?php echo JHtml::_( 'bootstrap.endTab' ); ?>
-
-
-
 		<?php echo JHtml::_( 'bootstrap.endTabSet' ); ?>
 
 		<input type="hidden" name="task" value=""/>

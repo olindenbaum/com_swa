@@ -13,6 +13,7 @@ CREATE TABLE IF NOT EXISTS `#__swa_member` (
   `graduation` INT(11)  NOT NULL ,
   `discipline` VARCHAR(50)  NOT NULL ,
   `level` VARCHAR(20)  NOT NULL DEFAULT 'Beginner',
+  `shirt` VARCHAR(3)  NOT NULL ,
   `econtact` VARCHAR(255)  NOT NULL ,
   `enumber` VARCHAR(255)  NOT NULL ,
   `dietary` VARCHAR(10),
@@ -23,7 +24,7 @@ CREATE TABLE IF NOT EXISTS `#__swa_member` (
   INDEX `fk_member_user_idx` (`user_id` ASC),
   INDEX `fk_member_university_idx` (`university_id` ASC)
 )
-  DEFAULT COLLATE=utf8_general_ci;
+DEFAULT COLLATE=utf8_general_ci;
 
 -- committee
 --
@@ -37,84 +38,23 @@ CREATE  TABLE IF NOT EXISTS `#__swa_committee` (
   PRIMARY KEY (`id`),
   INDEX `fk_committee_member_idx` (`member_id` ASC)
 )
-  DEFAULT COLLATE=utf8_general_ci;
-
--- qualification_type
---
--- Table holding the different types of qualifications
-CREATE TABLE IF NOT EXISTS `#__swa_qualification_type` (
-  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT ,
-  `name` VARCHAR(100) NOT NULL ,
-  PRIMARY KEY (`id`)
-)
-  DEFAULT COLLATE=utf8_general_ci;
-
--- Insert the different types of qualifications into qualification_type table
-INSERT INTO `#__swa_qualification_type`
-VALUES
-  (1, "Powerboat Level 2") ,
-  (2, "Safety Boat") ,
-  (3, "Start Windsurfing Instructor") ,
-  (4, "Intermediate Windsurfing Instructor") ,
-  (5, "Advanced Windsurfing Instructor") ,
-  (6, "Senior Windsurfing Instructor") ,
-  (7, "Racing Windsurfing Instructor");
+DEFAULT COLLATE=utf8_general_ci;
 
 -- qualification
 --
 -- Table holding qualifications that members hold
 CREATE  TABLE IF NOT EXISTS `#__swa_qualification` (
   `id` INT NOT NULL AUTO_INCREMENT ,
-  `member_id` INT UNSIGNED NOT NULL ,
-  `type_id` INT UNSIGNED NOT NULL ,
-  `expiry_date` DATE ,
+  `member_id` INT(11)  NOT NULL ,
+  `type` VARCHAR(50)  NOT NULL ,
+  `expiry_date` DATE NOT NULL ,
   `file` MEDIUMBLOB NOT NULL ,
   `file_type` VARCHAR(50) NOT NULL ,
-  `approved_on` DATE ,
-  `approved_by` INT UNSIGNED ,
+  `approved` TINYINT(1) ,
   PRIMARY KEY (`id`),
-  CONSTRAINT `fk_member_id_member_id` FOREIGN KEY(`member_id`) REFERENCES `#__swa_member`(`id`) ON UPDATE CASCADE ON DELETE RESTRICT,
-  CONSTRAINT `fk_qualification_type_id` FOREIGN KEY(`type_id`) REFERENCES `#__swa_qualification_type`(`id`) ON UPDATE CASCADE ON DELETE RESTRICT,
-  CONSTRAINT `fk_approved_by_member_id` FOREIGN KEY(`approved_by`) REFERENCES `#__swa_member`(`id`) ON UPDATE CASCADE ON DELETE RESTRICT
+  INDEX `fk_qualification_member_idx` (`member_id` ASC)
 )
-  DEFAULT COLLATE=utf8_general_ci;
-
--- member_ability
---
--- Table to store whether a member can safety boat or instruct
-CREATE TABLE IF NOT EXISTS `#__swa_member_ability` (
-  `id` INT NOT NULL AUTO_INCREMENT ,
-  `member_id` INT UNSIGNED NOT NULL ,
-  `safety_boat` BOOLEAN NOT NULL ,
-  `instruct` BOOLEAN NOT NULL ,
-  PRIMARY KEY(`id`) ,
-  CONSTRAINT `fk_member_id` FOREIGN KEY (`member_id`) REFERENCES `#__swa_member`(`id`) ON UPDATE CASCADE ON DELETE RESTRICT
-)
-  DEFAULT COLLATE=utf8_general_ci;
-
--- t-shirt_size
---
--- Table to store the different t-shirt sizes
-CREATE TABLE IF NOT EXISTS `#__swa_t-shirt_size` (
-  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT ,
-  `name` varchar(100) NOT NULL ,
-  PRIMARY KEY(id)
-)
-  DEFAULT COLLATE =utf8_general_ci;
-
--- Insert the different t-shirt sizes
-INSERT INTO `#__swa_t-shirt_size`
-VALUES
-  (1, "Men's x-small") ,
-  (2, "Men's small") ,
-  (3, "Men's medium") ,
-  (4, "Men's large") ,
-  (5, "Men's x-large") ,
-  (6, "Womens's x-small") ,
-  (7, "Womens's small") ,
-  (8, "Womens's medium") ,
-  (9, "Womens's large") ,
-  (10, "Womens's x-large");
+DEFAULT COLLATE=utf8_general_ci;
 
 -- university
 --
@@ -126,7 +66,7 @@ CREATE  TABLE IF NOT EXISTS `#__swa_university` (
   PRIMARY KEY (`id`) ,
   UNIQUE INDEX `name_UNIQUE` (`name` ASC)
 )
-  DEFAULT COLLATE=utf8_general_ci;
+DEFAULT COLLATE=utf8_general_ci;
 
 -- university member
 --
@@ -143,7 +83,7 @@ CREATE  TABLE IF NOT EXISTS `#__swa_university_member` (
   INDEX `fk_university_member_university_idx` (`member_id` ASC),
   CONSTRAINT unique_member_id_university_id UNIQUE(member_id, university_id)
 )
-  DEFAULT COLLATE=utf8_general_ci;
+DEFAULT COLLATE=utf8_general_ci;
 
 -- season
 --
@@ -154,7 +94,7 @@ CREATE  TABLE IF NOT EXISTS `#__swa_season` (
   PRIMARY KEY (`id`) ,
   UNIQUE INDEX `year_UNIQUE` (`year` ASC)
 )
-  DEFAULT COLLATE=utf8_general_ci;
+DEFAULT COLLATE=utf8_general_ci;
 
 -- deposit
 --
@@ -168,7 +108,7 @@ CREATE  TABLE IF NOT EXISTS `#__swa_deposit` (
   `amount` DECIMAL(6,2) NOT NULL ,
   PRIMARY KEY (`id`) ,
   INDEX `fk_deposit_university_idx` (`university_id` ASC) )
-  DEFAULT COLLATE=utf8_general_ci;
+DEFAULT COLLATE=utf8_general_ci;
 
 -- event
 --
@@ -183,7 +123,7 @@ CREATE  TABLE IF NOT EXISTS `#__swa_event` (
   `date` DATE NOT NULL ,
   PRIMARY KEY (`id`) ,
   INDEX `fk_event_season1_idx` (`season_id` ASC) )
-  DEFAULT COLLATE=utf8_general_ci;
+DEFAULT COLLATE=utf8_general_ci;
 
 -- event host
 --
@@ -196,7 +136,7 @@ CREATE  TABLE IF NOT EXISTS `#__swa_event_host` (
   PRIMARY KEY (`id`) ,
   INDEX `fk_event_host_event1_idx` (`event_id` ASC) ,
   INDEX `fk_event_host_university1_idx` (`university_id` ASC) )
-  DEFAULT COLLATE=utf8_general_ci;
+DEFAULT COLLATE=utf8_general_ci;
 
 -- event ticket
 --
@@ -209,7 +149,7 @@ CREATE  TABLE IF NOT EXISTS `#__swa_event_ticket` (
   `name` VARCHAR(100) NOT NULL ,
   `quantity` INT NOT NULL ,
   `price` DECIMAL(6,2) NOT NULL ,
-  `notes` TEXT DEFAULT NULL,
+  `notes` TEXT DEFAULT NULL ,
   `need_level` VARCHAR(20) DEFAULT NULL ,
   `need_swa` TINYINT(1)  NOT NULL DEFAULT 0 ,
   `need_xswa` TINYINT(1)  NOT NULL DEFAULT 0 ,
@@ -217,7 +157,7 @@ CREATE  TABLE IF NOT EXISTS `#__swa_event_ticket` (
   `need_qualification` TINYINT(1)  NOT NULL DEFAULT 0 ,
   PRIMARY KEY (`id`) ,
   INDEX `fk_event_ticket_event1_idx` (`event_id` ASC) )
-  DEFAULT COLLATE=utf8_general_ci;
+DEFAULT COLLATE=utf8_general_ci;
 
 -- grant
 --
@@ -242,27 +182,22 @@ CREATE  TABLE IF NOT EXISTS `#__swa_grant` (
   `created_by` INT(11)  NOT NULL ,
   PRIMARY KEY (`id`) ,
   INDEX `fk_grants_createdby1_idx` (`created_by` ASC) ,
-  INDEX `fk_grants_event1_idx` (`event_id` ASC)
-)
-  DEFAULT COLLATE=utf8_general_ci;
+  INDEX `fk_grants_event1_idx` (`event_id` ASC) )
+DEFAULT COLLATE=utf8_general_ci;
 
 -- ticket
 --
 -- Table holding event ticket information.
 -- Each record here represents an individual ticket
-CREATE TABLE IF NOT EXISTS `#__swa_ticket` (
+CREATE  TABLE IF NOT EXISTS `#__swa_ticket` (
   `id` INT NOT NULL AUTO_INCREMENT ,
   `member_id` INT NOT NULL ,
   `event_ticket_id` INT NOT NULL ,
-  `t-shirt_size_id` INT UNSIGNED ,
-  `properties`      BLOB ,
   `paid` DECIMAL(6,2) NOT NULL ,
   PRIMARY KEY (`id`) ,
-  CONSTRAINT `fk_member_id` FOREIGN KEY (`member_id`) REFERENCES `#__swa_member`(`id`) ON UPDATE CASCADE ON DELETE RESTRICT,
-  CONSTRAINT `fk_event_ticket_id` FOREIGN KEY (`event_ticket_id`) REFERENCES `#__swa_event_ticket`(`id`) ON UPDATE CASCADE ON DELETE RESTRICT,
-  CONSTRAINT `fk_t-shirt_size_id` FOREIGN KEY (`t-shirt_size_id`) REFERENCES `#__swa_t-shirt_size`(`id`) ON UPDATE CASCADE ON DELETE RESTRICT
-)
-  DEFAULT COLLATE=utf8_general_ci;
+  INDEX `fk_ticket_event_ticket1_idx` (`event_ticket_id` ASC) ,
+  INDEX `fk_ticket_member1_idx` (`member_id` ASC) )
+DEFAULT COLLATE=utf8_general_ci;
 
 -- event registration
 --
@@ -276,7 +211,7 @@ CREATE  TABLE IF NOT EXISTS `#__swa_event_registration` (
   PRIMARY KEY (`id`) ,
   INDEX `fk_event_registration_event1_idx` (`event_id` ASC) ,
   INDEX `fk_event_registration_member1_idx` (`member_id` ASC) )
-  DEFAULT COLLATE=utf8_general_ci;
+DEFAULT COLLATE=utf8_general_ci;
 
 -- competition type
 --
@@ -286,7 +221,7 @@ CREATE  TABLE IF NOT EXISTS `#__swa_competition_type` (
   `name` VARCHAR(45) NOT NULL ,
   `series` VARCHAR(10) NOT NULL ,
   PRIMARY KEY (`id`) )
-  DEFAULT COLLATE=utf8_general_ci;
+DEFAULT COLLATE=utf8_general_ci;
 
 -- competition
 --
@@ -298,7 +233,7 @@ CREATE  TABLE IF NOT EXISTS `#__swa_competition` (
   PRIMARY KEY (`id`) ,
   INDEX `fk_competition_event1_idx` (`event_id` ASC) ,
   INDEX `fk_competition_competition_type1_idx` (`competition_type_id` ASC) )
-  DEFAULT COLLATE=utf8_general_ci;
+DEFAULT COLLATE=utf8_general_ci;
 
 -- indi result
 --
@@ -311,7 +246,7 @@ CREATE  TABLE IF NOT EXISTS `#__swa_indi_result` (
   PRIMARY KEY (`id`) ,
   INDEX `fk_indi_result_competition1_idx` (`competition_id` ASC) ,
   INDEX `fk_indi_result_member1_idx` (`member_id` ASC) )
-  DEFAULT COLLATE=utf8_general_ci;
+DEFAULT COLLATE=utf8_general_ci;
 
 -- team result
 --
@@ -325,7 +260,7 @@ CREATE  TABLE IF NOT EXISTS `#__swa_team_result` (
   PRIMARY KEY (`id`) ,
   INDEX `fk_team_result_competition1_idx` (`competition_id` ASC) ,
   INDEX `fk_team_result_university1_idx` (`university_id` ASC) )
-  DEFAULT COLLATE=utf8_general_ci;
+DEFAULT COLLATE=utf8_general_ci;
 
 -- damages
 --
@@ -340,22 +275,22 @@ CREATE  TABLE IF NOT EXISTS `#__swa_damages` (
   PRIMARY KEY (`id`) ,
   INDEX `fk_damages_event1_idx` (`event_id` ASC) ,
   INDEX `fk_damages_university1_idx` (`university_id` ASC) )
-  DEFAULT COLLATE=utf8_general_ci;
+DEFAULT COLLATE=utf8_general_ci;
 
 -- viewlevels
 --
 -- Add 2 view level if they do not already exist
 -- These are used to control the availability of menus for Org / Club committee members
 INSERT INTO `#__viewlevels` (title, ordering, rules)
-  SELECT 'Club Committee', 0, '[]'
-  FROM dual
-  WHERE NOT EXISTS (SELECT 1
-                    FROM `#__viewlevels`
+SELECT 'Club Committee', 0, '[]'
+FROM dual
+ WHERE NOT EXISTS (SELECT 1
+                     FROM `#__viewlevels`
                     WHERE title = 'Club Committee');
 
 INSERT INTO `#__viewlevels` (title, ordering, rules)
-  SELECT 'Org Committee', 0, '[]'
-  FROM dual
-  WHERE NOT EXISTS (SELECT 1
-                    FROM `#__viewlevels`
+SELECT 'Org Committee', 0, '[]'
+FROM dual
+ WHERE NOT EXISTS (SELECT 1
+                     FROM `#__viewlevels`
                     WHERE title = 'Org Committee');

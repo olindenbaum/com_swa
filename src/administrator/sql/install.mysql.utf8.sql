@@ -70,12 +70,10 @@ CREATE  TABLE IF NOT EXISTS `#__swa_qualification` (
   `expiry_date` DATE ,
   `file` MEDIUMBLOB NOT NULL ,
   `file_type` VARCHAR(50) NOT NULL ,
-  `approved_on` DATE ,
-  `approved_by` INT UNSIGNED ,
+  `approved` TINYINT(1) ,
   PRIMARY KEY (`id`),
-  CONSTRAINT `fk_member_id_member_id` FOREIGN KEY(`member_id`) REFERENCES `#__swa_member`(`id`) ON UPDATE CASCADE ON DELETE RESTRICT,
-  CONSTRAINT `fk_qualification_type_id` FOREIGN KEY(`type_id`) REFERENCES `#__swa_qualification_type`(`id`) ON UPDATE CASCADE ON DELETE RESTRICT,
-  CONSTRAINT `fk_approved_by_member_id` FOREIGN KEY(`approved_by`) REFERENCES `#__swa_member`(`id`) ON UPDATE CASCADE ON DELETE RESTRICT
+  CONSTRAINT `fk_member_id_member_id` FOREIGN KEY(`member_id`) REFERENCES `#__swa_member`(`id`) ,
+  CONSTRAINT `fk_qualification_type_id` FOREIGN KEY(`type_id`) REFERENCES `#__swa_qualification_type`(`id`) ,
 )
 DEFAULT COLLATE=utf8_general_ci;
 
@@ -87,20 +85,20 @@ CREATE TABLE IF NOT EXISTS `#__swa_member_ability` (
   `member_id` INT UNSIGNED NOT NULL ,
   `safety_boat` BOOLEAN NOT NULL ,
   `instruct` BOOLEAN NOT NULL ,
-  PRIMARY KEY(`id`) ,
-  CONSTRAINT `fk_member_id` FOREIGN KEY (`member_id`) REFERENCES `#__swa_member`(`id`) ON UPDATE CASCADE ON DELETE RESTRICT
+  PRIMARY KEY(`id`),
+  CONSTRAINT `fk_member_id` FOREIGN KEY (`member_id`) REFERENCES `#__swa_member`(`id`)
 )
-  DEFAULT COLLATE=utf8_general_ci;
+DEFAULT COLLATE=utf8_general_ci;
 
 -- t-shirt_size
 --
 -- Table to store the different t-shirt sizes
 CREATE TABLE IF NOT EXISTS `#__swa_t-shirt_size` (
-  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT ,
-  `name` varchar(100) NOT NULL ,
+  id INT UNSIGNED NOT NULL AUTO_INCREMENT ,
+  name varchar(100) NOT NULL ,
   PRIMARY KEY(id)
 )
-  DEFAULT COLLATE =utf8_general_ci;
+DEFAULT COLLATE =utf8_general_ci;
 
 -- Insert the different t-shirt sizes
 INSERT INTO `#__swa_t-shirt_size`
@@ -251,13 +249,15 @@ DEFAULT COLLATE=utf8_general_ci;
 -- Table holding event ticket information.
 -- Each record here represents an individual ticket
 CREATE TABLE IF NOT EXISTS `#__swa_ticket` (
-  `id` INT NOT NULL AUTO_INCREMENT ,
-  `member_id` INT NOT NULL ,
-  `event_ticket_id` INT NOT NULL ,
-  `t-shirt_size_id` INT UNSIGNED ,
-  `properties`      BLOB ,
-  `paid` DECIMAL(6,2) NOT NULL ,
-  PRIMARY KEY (`id`) ,
+  `id`              INT           NOT NULL AUTO_INCREMENT,
+  `member_id`       INT UNSIGNED  NOT NULL,
+  `event_ticket_id` INT           NOT NULL,
+  `t-shirt_size_id` INT UNSIGNED,
+  `properties`      BLOB,
+  `paid`            DECIMAL(6, 2) NOT NULL,
+  PRIMARY KEY (`id`),
+  INDEX `fk_member_id` (`member_id` ASC),
+  INDEX `fk_event_ticket_id` (`event_ticket_id` ASC),
   CONSTRAINT `fk_member_id` FOREIGN KEY (`member_id`) REFERENCES `#__swa_member`(`id`) ON UPDATE CASCADE ON DELETE RESTRICT,
   CONSTRAINT `fk_event_ticket_id` FOREIGN KEY (`event_ticket_id`) REFERENCES `#__swa_event_ticket`(`id`) ON UPDATE CASCADE ON DELETE RESTRICT,
   CONSTRAINT `fk_t-shirt_size_id` FOREIGN KEY (`t-shirt_size_id`) REFERENCES `#__swa_t-shirt_size`(`id`) ON UPDATE CASCADE ON DELETE RESTRICT
@@ -347,15 +347,15 @@ DEFAULT COLLATE=utf8_general_ci;
 -- Add 2 view level if they do not already exist
 -- These are used to control the availability of menus for Org / Club committee members
 INSERT INTO `#__viewlevels` (title, ordering, rules)
-  SELECT 'Club Committee', 0, '[]'
-  FROM dual
-  WHERE NOT EXISTS (SELECT 1
-                    FROM `#__viewlevels`
+SELECT 'Club Committee', 0, '[]'
+FROM dual
+ WHERE NOT EXISTS (SELECT 1
+                     FROM `#__viewlevels`
                     WHERE title = 'Club Committee');
 
 INSERT INTO `#__viewlevels` (title, ordering, rules)
-  SELECT 'Org Committee', 0, '[]'
-  FROM dual
-  WHERE NOT EXISTS (SELECT 1
-                    FROM `#__viewlevels`
+SELECT 'Org Committee', 0, '[]'
+FROM dual
+ WHERE NOT EXISTS (SELECT 1
+                     FROM `#__viewlevels`
                     WHERE title = 'Org Committee');

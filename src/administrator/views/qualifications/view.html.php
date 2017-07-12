@@ -48,9 +48,10 @@ class SwaViewQualifications extends JViewLegacy {
 		$formPath = JPATH_COMPONENT_ADMINISTRATOR . '/views/qualification';
 		if ( file_exists( $formPath ) ) {
 
-			if ( $canDo->get( 'core.create' ) ) {
-				JToolBarHelper::addNew( 'qualification.add', 'JTOOLBAR_NEW' );
-			}
+//			Can't add new qualifications from the back-end so comment out for now.
+//			if ( $canDo->get( 'core.create' ) ) {
+//				JToolBarHelper::addNew( 'qualification.add', 'JTOOLBAR_NEW' );
+//			}
 
 			if ( $canDo->get( 'core.edit' ) && isset( $this->items[0] ) ) {
 				JToolBarHelper::editList( 'qualification.edit', 'JTOOLBAR_EDIT' );
@@ -72,8 +73,9 @@ class SwaViewQualifications extends JViewLegacy {
 
 	protected function getSortFields() {
 		return array(
-			'a.id' => JText::_( 'JGRID_HEADING_ID' ),
-			'a.name' => JText::_( 'Name' ),
+			'id' => JText::_( 'JGRID_HEADING_ID' ),
+			'member' => JText::_( 'Member' ),
+			'approved_on' => JText::_( 'Approved On' )
 		);
 	}
 

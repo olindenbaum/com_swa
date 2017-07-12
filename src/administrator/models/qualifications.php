@@ -14,11 +14,8 @@ class SwaModelQualifications extends JModelList {
 		if ( empty( $config['filter_fields'] ) ) {
 			$config['filter_fields'] = array(
 				'id',
-				'a.id',
-				'member_id',
-				'a.member_id',
-				'expiry_date',
-				'a.expiry_date',
+				'member',
+				'approved_on'
 			);
 		}
 
@@ -32,7 +29,7 @@ class SwaModelQualifications extends JModelList {
 			$app->getUserStateFromRequest( $this->context . '.filter.search', 'filter_search' )
 		);
 		$this->setState( 'params', JComponentHelper::getParams( 'com_swa' ) );
-		parent::populateState( 'a.id', 'desc' );
+		parent::populateState( 'qualification.id', 'desc' );
 	}
 
 	/**
@@ -67,19 +64,29 @@ class SwaModelQualifications extends JModelList {
 		$query->select(
 			$this->getState(
 				'list.select',
-				'DISTINCT a.*'
+				$db->quoteName(
+					array('qualification.id',
+						'user.name',
+						'qualification_type.name',
+						'qualification.expiry_date',
+						'qualification.approved_on',
+						'qualification.approved_by'),
+					array('id', 'member', 'type', 'expiry_date', 'approved_on', 'approved_by')
+				)
 			)
 		);
-		$query->from( '`#__swa_qualification` AS a' );
-		$query->join( 'LEFT', '#__swa_member AS member ON member.id = a.member_id' );
-		$query->join( 'LEFT', '#__users AS user ON user.id = member.user_id' );
-		$query->select( 'user.name AS user' );
+
+		// From these tables
+		$query->from( $db->qn('#__swa_qualification', 'qualification') );
+		$query->leftJoin( $db->qn('#__swa_qualification_type', 'qualification_type') . ' ON qualification_type.id = qualification.type_id' );
+		$query->leftJoin( $db->qn('#__swa_member', 'member') . ' ON member.id = qualification.member_id' );
+		$query->leftJoin( $db->qn('#__users', 'user') . ' ON user.id = member.user_id' );
 
 		// Filter by search in title
 		$search = $this->getState( 'filter.search' );
 		if ( !empty( $search ) ) {
 			if ( stripos( $search, 'id:' ) === 0 ) {
-				$query->where( 'a.id = ' . (int)substr( $search, 3 ) );
+				$query->where( 'qualification.id = ' . (int)substr( $search, 3 ) );
 			} else {
 				$search = $db->Quote( '%' . $db->escape( $search, true ) . '%' );
 				$query->where(

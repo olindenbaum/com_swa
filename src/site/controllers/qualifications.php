@@ -7,10 +7,8 @@ require_once JPATH_COMPONENT . '/controller.php';
 class SwaControllerQualifications extends SwaController {
 
 	public function viewImage() {
-
 		$input = JFactory::getApplication()->input;
 		$get = $input->get;
-		$data = $input->getArray();
 		$qualificationId = $get->getInt('qualification', $default=null);
 
 		$model = $this->getModel('qualifications');
@@ -36,9 +34,9 @@ class SwaControllerQualifications extends SwaController {
 		if( $qualification->member_id != $member->id ) {
 			die( "Trying to get qualification image for other member.." );
 		}
-		//output the file?
+		// output the file
 		header("Content-type: " . $qualification->file_type );
-		print( $qualification->file );
+		echo( $qualification->file );
 		exit();
 	}
 

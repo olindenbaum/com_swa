@@ -47,10 +47,10 @@ class SwaViewOrgMemberQualifications extends JViewLegacy {
 
 	protected function getSortFields() {
 		return array(
-			'a.id' => JText::_( 'JGRID_HEADING_ID' ),
-			'a.member' => JText::_( 'Member' ),
-			'a.type' => JText::_( 'Type' ),
-			'a.expiry' => JText::_( 'Expiry' ),
+			'qualification.id' => JText::_( 'JGRID_HEADING_ID' ),
+			'qualification.member' => JText::_( 'Member' ),
+			'qual_type.name' => JText::_( 'Type' ),
+			'qualification.expiry' => JText::_( 'Expiry' ),
 		);
 	}
 

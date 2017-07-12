@@ -11,7 +11,7 @@ class SwaControllerQualifications extends SwaControllerAdmin {
 	/**
 	 * Proxy for getModel.
 	 */
-	public function getModel( $name = 'qualification', $prefix = 'SwaModel' ) {
+	public function getModel( $name = 'qualification', $prefix = 'SwaModel', $config = array() ) {
 		$model = parent::getModel( $name, $prefix, array( 'ignore_request' => true ) );
 
 		return $model;
@@ -35,7 +35,7 @@ class SwaControllerQualifications extends SwaControllerAdmin {
 		}
 		$qualification = $db->loadObject();
 
-		//output the file?
+		// output the file
 		header("Content-type: " . $qualification->file_type );
 		print( $qualification->file );
 		exit();

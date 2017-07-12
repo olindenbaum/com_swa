@@ -25,7 +25,7 @@ class SwaModelOrgMemberQualifications extends SwaModelList {
 		$this->setState( 'params', $params );
 
 		// List state information.
-		parent::populateState( 'a.id', 'asc' );
+		parent::populateState( 'qualification.id', 'asc' );
 	}
 
 	/**
@@ -58,23 +58,37 @@ class SwaModelOrgMemberQualifications extends SwaModelList {
 
 		// Select the required fields from the table.
 		$query->select(
-			array(
-				'a.id as id',
-				'users.name as member',
-				'a.type as type',
-				'a.expiry_date as expiry',
-				'a.approved as approved',
+			$db->quoteName(
+				array(
+					'qualification.id',
+					'member.id',
+					'user.name',
+					'qual_type.name',
+					'qualification.expiry_date',
+					'qualification.approved',
+					'member_ability.safety_boat',
+					'member_ability.instruct'
+					),
+				array(
+					'id',
+					'member_id',
+					'member',
+					'type',
+					'expiry',
+					'approved',
+					'safety_boat',
+					'instruct'
+				)
 			)
 		);
-		$query->from( '`#__swa_qualification` AS a' );
 
-		// Join over the user field 'user_id'
-		$query->join( 'LEFT', '#__swa_member AS member ON member.id = a.member_id' );
-		$query->join( 'LEFT', '#__users AS users ON users.id = member.user_id' );
-		$query->join(
-			'LEFT',
-			'#__swa_university AS university ON university.id = member.university_id'
-		);
+		$query->from( $db->qn('#__swa_qualification', 'qualification') );
+
+		$query->leftJoin( $db->qn('#__swa_qualification_type', 'qual_type') . ' ON qual_type.id = qualification.type_id' );
+		$query->leftJoin( $db->qn('#__swa_member', 'member') . ' ON member.id = qualification.member_id' );
+		$query->leftJoin( $db->qn('#__swa_member_ability', 'member_ability') . ' ON member_ability.member_id = member.id' );
+		$query->leftJoin( $db->qn('#__users', 'user') . ' ON user.id = member.user_id' );
+		$query->leftJoin( $db->qn('#__swa_university', 'uni') . ' ON uni.id = member.university_id' );
 
 		// Add the list ordering clause.
 		$orderCol = $this->state->get( 'list.ordering' );
@@ -86,11 +100,39 @@ class SwaModelOrgMemberQualifications extends SwaModelList {
 		return $query;
 	}
 
+	public function getMemberId() {
+		$get = JFactory::getApplication()->input->get;
+		$memberId = $get->getInt('member', $default=null);
+
+		return $memberId;
+	}
+
 	public function getItems() {
-		//NEVER limit this list
+		// NEVER limit this list
 		$this->setState( 'list.limit', '0' );
 
-		$items = parent::getItems();
+		$parentItems = parent::getItems();
+		$items = array();
+
+		foreach($parentItems as $item) {
+
+			$memberId = $item->member_id;
+
+			if ( !isset($items[$memberId]) ) {
+				$items[$memberId] = new stdClass();
+				$items[$memberId]->id = $memberId;
+				$items[$memberId]->name = $item->member;
+				$items[$memberId]->safety_boat = $item->safety_boat;
+				$items[$memberId]->instruct = $item->instruct;
+			}
+
+			unset($item->member_id);
+			unset($item->member);
+			unset($item->safety_boat);
+			unset($item->instruct);
+
+			$items[$memberId]->qualifications[] = $item;
+		}
 
 		return $items;
 	}

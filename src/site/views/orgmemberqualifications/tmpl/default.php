@@ -12,9 +12,10 @@ $lang = JFactory::getLanguage();
 $lang->load( 'com_swa', JPATH_ADMINISTRATOR );
 $doc = JFactory::getDocument();
 $doc->addScript( JUri::base() . '/components/com_swa/assets/js/form.js' );
+
 ?>
 
-<!--</style>-->
+<!-- TODO this doesn't seem to do anything!-->
 <script type="text/javascript">
 	getScript( '//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js', function () {
 		jQuery( document ).ready( function () {
@@ -31,80 +32,52 @@ $doc->addScript( JUri::base() . '/components/com_swa/assets/js/form.js' );
 	<table class="table table-hover" id="qualificationsList">
 		<thead>
 			<tr>
-				<th class='left'>Id</th>
 				<th class='left'>Member</th>
-				<th class='left'>Type</th>
-				<th class='left'>Expiry</th>
-				<th class='left'>Approved</th>
-				<th class='left'>File</th>
-				<th class='left'>Action</th>
+				<th class='right'>Can Safety Boat</th>
+				<th class='tight'>Can Instruct</th>
+				<th class='right'>Expired Qualifications</th>
+				<th class='right'>Unapproved Qualifications</th>
 			</tr>
 		</thead>
 		<tbody>
-			<?php foreach ( $this->items as $i => $item ) :
-				?>
-				<tr class="row<?php echo $i % 2; ?>">
-					<td class="center hidden-phone">
-						<?php echo (int)$item->id; ?>
-					</td>
-					<td>
-						<?php echo $item->member; ?>
-					</td>
-					<td>
-						<?php echo $item->type; ?>
-					</td>
-					<?php
-					if ( new DateTime( $item->expiry ) < new DateTime() ) {
-						echo "<td bgcolor='#FF6666'>";
-					} else {
-						echo "<td>";
-					}
-					echo $item->expiry;
-					echo "</td>";
+			<?php foreach ( $this->items as $item ) :
+//				$expired = $item->expiry == null or new DateTime($item->expiry) < new DateTime();
+//				$approved = $item->approved_on != null and $item->approved_by != null;
+//
+//				$baseUrl = "index.php?option=com_swa";
+//				$approvedUrl = JRoute::_( $baseUrl . '&task=orgmemberqualifications.approve' );
+//				$unapprovedUrl = JRoute::_( $baseUrl . '&task=orgmemberqualifications.unapprove' );
+//
+//				$imgSrc = JRoute::_( $baseUrl . '&task=orgmemberqualifications.viewImage&qualification=5');
 
-					if ( !$item->approved ) {
-						echo "<td bgcolor='#FF6666'>";
-					} else {
-						echo "<td>";
+				$expired = 0;
+				$unapproved = 0;
+				foreach ( $item->qualifications as $qualification ) {
+					if ( $qualification->expiry == null or new DateTime($qualification->expiry) < new DateTime() ) {
+						$expired++;
 					}
-					echo $item->approved;
-					echo "</td>";
 
-					?>
-				<?php
-				$imgSrc =
-					JRoute::_(
-						'index.php?option=com_swa&task=orgmemberqualifications.viewImage&qualification=' .
-						$item->id
-					);
-				echo "<td><a href='$imgSrc'>View Upload</a></td>\n";
+					if ( $qualification->approved_on == null and $qualification->approved_by == null ) {
+						$unapproved++;
+					}
+				}
 				?>
+				<tr onclick="getElementById('edit-1').click()" style="cursor: pointer">
 					<td>
-						<?php
-						if ( !$item->approved ) {
-							echo '<form id="form-orgmemberqualifications-approve-' .
-								$item->id . '" method="POST" action="' .
-								JRoute::_( 'index.php?option=com_swa&task=orgmemberqualifications.approve' ) .
-								'">' .
-								'<input type="hidden" name ="qualification" value="' . $item->id . '" />' .
-								'<a href="javascript:{}" onclick="document.getElementById(\'form-orgmemberqualifications-approve-' .
-								$item->id .
-								'\').submit(); return false;">(approve)</a>' .
-								JHtml::_( 'form.token' ) .
-								'</form>';
-						} else {
-							echo '<form id="form-orgmemberqualifications-unapprove-' .
-								$item->id . '" method="POST" action="' .
-								JRoute::_( 'index.php?option=com_swa&task=orgmemberqualifications.unapprove' ) .
-								'">' .
-								'<input type="hidden" name ="qualification" value="' . $item->id . '" />' .
-								'<a href="javascript:{}" onclick="document.getElementById(\'form-orgmemberqualifications-unapprove-' .
-								$item->id .
-								'\').submit(); return false;">(unapprove)</a>' .
-								JHtml::_( 'form.token' ) .
-								'</form>';
-						}
-						?>
+						<a href="<?php echo JRoute::_("index.php?option=com_swa&view=orgmemberqualifications&layout=member&member={$item->id}") ?>" id="edit-1"></a>
+							<?php echo $item->name; ?>
+					</td>
+					<td <?php echo $item->safety_boat ? "bgcolor='#FF6666'" : "" ?>>
+						<?php echo $item->safety_boat ? "Yes" : "No" ?>
+					</td>
+					<td <?php echo $item->instruct ? "bgcolor='#FF6666'" : "" ?>>
+						<?php echo $item->instruct ? "Yes" : "No" ?>
+					</td>
+					<td <?php echo $expired > 0 ? "bgcolor='#FF6666'" : ""?>>
+						<?php echo $expired ?>
+					</td>
+					<td <?php echo $unapproved > 0 ? "bgcolor='#FF6666'" : ""?>>
+						<?php echo $unapproved ?>
 					</td>
 				</tr>
 			<?php endforeach; ?>
