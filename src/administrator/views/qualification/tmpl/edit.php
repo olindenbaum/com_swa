@@ -63,12 +63,8 @@ $document->addStyleSheet( 'components/com_swa/assets/css/swa.css' );
 						<div class="controls"><?php echo $this->form->getInput('expiry_date'); ?></div>
 					</div>
 					<div class="control-group">
-						<div class="control-label"><?php echo $this->form->getLabel('approved_on'); ?></div>
-						<div class="controls"><?php echo $this->form->getInput('approved_on'); ?></div>
-					</div>
-					<div class="control-group">
-						<div class="control-label"><?php echo $this->form->getLabel('approved_by'); ?></div>
-						<div class="controls"><?php echo $this->form->getInput('approved_by'); ?></div>
+						<div class="control-label"><?php echo $this->form->getLabel('approved'); ?></div>
+						<div class="controls"><?php echo $this->form->getInput('approved'); ?></div>
 					</div>
 
 					<p>Note: there is currently no way to change an uploaded image file.</p>

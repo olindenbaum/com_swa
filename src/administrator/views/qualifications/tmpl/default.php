@@ -143,10 +143,7 @@ if ( !empty( $this->extra_sidebar ) ) {
 						<?php echo JHtml::_('grid.sort', 'Expiry', 'expiry_date', $listDirn, $listOrder); ?>
 					</th>
 					<th class='left'>
-						<?php echo JHtml::_('grid.sort', 'Approved On', 'approved_on', $listDirn, $listOrder); ?>
-					</th>
-					<th class='left'>
-						<?php echo JHtml::_('grid.sort', 'Approved By', 'approved_by', $listDirn, $listOrder); ?>
+						<?php echo JHtml::_('grid.sort', 'Approved', 'approved', $listDirn, $listOrder); ?>
 					</th>
 					<th>File</th>
 					<th width="1%" class="nowrap center hidden-phone">
@@ -231,10 +228,7 @@ if ( !empty( $this->extra_sidebar ) ) {
 							<?php echo $this->escape( $item->expiry_date ); ?>
 						</td>
 						<td>
-							<?php echo $this->escape( $item->approved_on ); ?>
-						</td>
-						<td>
-							<?php echo $this->escape( $item->approved_by ); ?>
+							<?php echo $this->escape( $item->approved ); ?>
 						</td>
 						<td>
 							<?php

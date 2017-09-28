@@ -57,7 +57,7 @@ $doc->addScript( JUri::base() . '/components/com_swa/assets/js/form.js' );
 						$expired++;
 					}
 
-					if ( $qualification->approved_on == null and $qualification->approved_by == null ) {
+					if ( ! $qualification->approved ) {
 						$unapproved++;
 					}
 				}
