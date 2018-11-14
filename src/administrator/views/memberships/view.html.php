@@ -7,7 +7,7 @@ jimport('joomla.application.component.view');
 /**
  * View class for a list of Swa.
  */
-class SwaViewMembership extends JViewLegacy
+class SwaViewMemberships extends JViewLegacy
 {
 
 	protected $items;
@@ -32,7 +32,7 @@ class SwaViewMembership extends JViewLegacy
 		}
 
 		require_once JPATH_COMPONENT . '/helpers/swa.php';
-		SwaHelper::addSubmenu('membership');
+		SwaHelper::addSubmenu('memberships');
 
 		$this->addToolbar();
 
@@ -48,7 +48,7 @@ class SwaViewMembership extends JViewLegacy
 	{
 		$canDo = SwaHelper::getActions();
 
-		JToolBarHelper::title(JText::_('Membership'), 'membership.png');
+		JToolBarHelper::title(JText::_('Memberships'), 'membership.png');
 
 		// Check if the form exists before showing the add/edit buttons
 		$formPath = JPATH_COMPONENT_ADMINISTRATOR . '/views/membership';
@@ -82,11 +82,16 @@ class SwaViewMembership extends JViewLegacy
 	protected function getSortFields()
 	{
 		return array(
-			'id'            => JText::_('JGRID_HEADING_ID'),
-			'member_id'     => JText::_('User'),
-			'university_id' => JText::_('University'),
+			'season desc, member.id' => JText::_('Season, Member ID'),
+			'season'                 => JText::_('Season'),
+			'member'                 => JText::_('Member'),
+			'member.id'              => JText::_('Member ID'),
+			'paid'                   => JText::_('Paid'),
+			'level'                  => JText::_('Level'),
+			'university'             => JText::_('University'),
+			'approved'               => JText::_('Approved'),
+			'committee'              => JText::_('Committee'),
 		);
 	}
-
 
 }

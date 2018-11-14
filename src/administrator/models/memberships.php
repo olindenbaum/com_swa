@@ -20,9 +20,14 @@ class SwaModelMemberships extends JModelList
 		if (empty($config['filter_fields']))
 		{
 			$config['filter_fields'] = array(
-				'id',
-				'member_id',
-				'university_id',
+				'season',
+				'member.id',
+				'member',
+				'paid',
+				'level',
+				'university',
+				'approved',
+				'committee',
 			);
 		}
 
@@ -35,7 +40,7 @@ class SwaModelMemberships extends JModelList
 		$search = $app->getUserStateFromRequest($this->context . '.filter.search', 'filter_search');
 		$this->setState('filter.search', $search);
 		$this->setState('params', JComponentHelper::getParams('com_swa'));
-		parent::populateState('id', 'desc');
+		parent::populateState('season desc, member.id', 'desc');
 	}
 
 	/**
@@ -71,11 +76,13 @@ class SwaModelMemberships extends JModelList
 		// Select the required fields from the table.
 		$query->select($this->getState('list.select', 'DISTINCT membership.*'));
 		$query->select('user.name AS member');
-		$query->select('uni.name');
+		$query->select('season.year AS season');
+		$query->select('uni.name AS university');
 
 		$query->from('#__swa_membership AS membership');
 		$query->leftJoin('#__swa_member AS member ON member.id = membership.member_id');
 		$query->leftJoin('#__users AS user ON user.id = member.user_id');
+		$query->leftJoin('#__swa_season AS season ON season.id = membership.season_id');
 		$query->leftJoin('#__swa_university AS uni ON uni.id = membership.uni_id');
 
 		// Filter by search in title
@@ -84,7 +91,7 @@ class SwaModelMemberships extends JModelList
 		{
 			if (stripos($search, 'id:') === 0)
 			{
-				$query->where('member.id = ' . (int) substr($search, 3));
+				$query->where('member_id = ' . (int) substr($search, 3));
 			}
 			else
 			{
@@ -103,6 +110,9 @@ class SwaModelMemberships extends JModelList
 		{
 			$query->order($db->escape($orderCol . ' ' . $orderDirn));
 		}
+
+//		var_dump($query->dump());
+//		die;
 
 		return $query;
 	}
