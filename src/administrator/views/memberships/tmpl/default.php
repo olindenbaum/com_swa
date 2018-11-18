@@ -12,9 +12,8 @@ $userId    = $user->get('id');
 $listOrder = $this->state->get('list.ordering');
 $listDirn  = $this->state->get('list.direction');
 $canEdit   = $user->authorise('core.edit', 'com_swa');
-
-$sortFields = $this->getSortFields();
 ?>
+
 <script type="text/javascript">
 	Joomla.orderTable = function () {
 		table = document.getElementById("sortTable");
@@ -24,7 +23,6 @@ $sortFields = $this->getSortFields();
 		Joomla.tableOrdering(order, dirn, '');
 	}
 </script>
-
 
 <?php
 // Joomla Component Creator code to allow adding non select list filters
@@ -99,7 +97,7 @@ if (!empty($this->extra_sidebar))
 				</label>
 				<select name="sortTable" id="sortTable" class="input-medium" onchange="Joomla.orderTable()">
 					<option value=""><?php echo JText::_('JGLOBAL_SORT_BY'); ?></option>
-					<?php echo JHtml::_('select.options', $sortFields, 'value', 'text', $listOrder); ?>
+					<?php echo JHtml::_('select.options', $this->getSortFields(), 'value', 'text', $listOrder); ?>
 				</select>
 			</div>
 		</div>

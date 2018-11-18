@@ -91,14 +91,17 @@ class SwaModelMemberships extends JModelList
 		{
 			if (stripos($search, 'id:') === 0)
 			{
-				$query->where('member_id = ' . (int) substr($search, 3));
+				$query->where(
+					'( member_id = ' . (int) substr($search, 3) .
+					' OR membership.id = ' . (int) substr($search, 3) . ' )'
+				);
 			}
 			else
 			{
 				$search = $db->Quote('%' . $db->escape($search, true) . '%');
 				$query->where(
 					'( member LIKE ' . $search .
-					'  OR  user.username LIKE ' . $search . ' )'
+					' OR user.username LIKE ' . $search . ' )'
 				);
 			}
 		}
@@ -110,9 +113,6 @@ class SwaModelMemberships extends JModelList
 		{
 			$query->order($db->escape($orderCol . ' ' . $orderDirn));
 		}
-
-//		var_dump($query->dump());
-//		die;
 
 		return $query;
 	}

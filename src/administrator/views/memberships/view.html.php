@@ -2,8 +2,6 @@
 
 defined('_JEXEC') or die;
 
-jimport('joomla.application.component.view');
-
 /**
  * View class for a list of Swa.
  */
@@ -46,28 +44,31 @@ class SwaViewMemberships extends JViewLegacy
 	 */
 	protected function addToolbar()
 	{
-		$canDo = SwaHelper::getActions();
+		$actions = SwaHelper::getActions();
 
-		JToolBarHelper::title(JText::_('Memberships'), 'membership.png');
+		JToolBarHelper::title(JText::_('Memberships'), 'memberships.png');
 
 		// Check if the form exists before showing the add/edit buttons
 		$formPath = JPATH_COMPONENT_ADMINISTRATOR . '/views/membership';
 		if (file_exists($formPath))
 		{
-			if ($canDo->get('core.create'))
+			if ($actions->get('core.create'))
 			{
 				JToolBarHelper::addNew('membership.add', 'JTOOLBAR_NEW');
 			}
 
-			if ($canDo->get('core.edit') && isset($this->items[0]))
+			if ($actions->get('core.edit') && !empty($this->items))
 			{
 				JToolBarHelper::editList('membership.edit', 'JTOOLBAR_EDIT');
 			}
 		}
 
-		JToolBarHelper::deleteList('', 'memberships.delete', 'JTOOLBAR_DELETE');
+		if ($actions->get('core.delete'))
+		{
+			JToolBarHelper::deleteList('', 'memberships.delete', 'JTOOLBAR_DELETE');
+		}
 
-		if ($canDo->get('core.admin'))
+		if ($actions->get('core.admin'))
 		{
 			JToolBarHelper::preferences('com_swa');
 		}
@@ -76,7 +77,6 @@ class SwaViewMemberships extends JViewLegacy
 		JHtmlSidebar::setAction('index.php?option=com_swa&view=memberships');
 
 		$this->extra_sidebar = '';
-
 	}
 
 	protected function getSortFields()
