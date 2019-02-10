@@ -18,7 +18,6 @@ use Lurker\ResourceWatcher;
 $watcher = new ResourceWatcher;
 $watcher->track('administrator', __DIR__ . '/src/administrator' );
 $watcher->track('site', __DIR__ . '/src/site' );
-$watcher->track('swa.xml', __DIR__ . '/src/swa.xml' );
 
 $joomlaRoot = __DIR__ . '/.docker/www';
 
@@ -31,11 +30,6 @@ $watcher->addListener('administrator', function (FilesystemEvent $event) use ( $
 $watcher->addListener('site', function (FilesystemEvent $event) use ( $joomlaRoot ) {
 	echo "Copying site...\n";
 	recurse_copy( __DIR__ . '/src/site', $joomlaRoot . '/components/com_swa');
-	echo "Done!\n";
-});
-$watcher->addListener('administrator', function (FilesystemEvent $event) use ( $joomlaRoot ) {
-	echo "Copying swa.xml...\n";
-	copy(__DIR__ . '/src/swa.xml', $joomlaRoot . '/administrator/components/com_swa/swa.xml');
 	echo "Done!\n";
 });
 
